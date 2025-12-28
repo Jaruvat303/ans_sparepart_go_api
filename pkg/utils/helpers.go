@@ -1,0 +1,70 @@
+package utils
+
+import (
+	"strings"
+	"time"
+)
+
+// Default pagination values
+const (
+	defaultLimit = 10
+	maxLimit     = 100
+)
+
+// func IsValidRole(role string) bool {
+// 	userRole := map[string]bool{
+// 		"user":        true,
+// 		"moderator":   true,
+// 		"admin":       true,
+// 		"super_admin": true,
+// 	}
+
+// 	return userRole[role]
+// }                         // ตรวจสอบ role
+
+// Random Generation:
+
+// สร้าง random numeric ID
+// func GenerateRandomID() string {
+// 	max := big.NewInt(99999999999)
+// 	n, _ := rand.Int(rand.Reader, max)
+// 	return fmt.Sprintf("%d", n)
+// }
+
+// Time Utilities:
+func GetCurrentTimestamp() string {
+	return time.Now().UTC().Format(time.RFC3339)
+} // ปัจจุบัน timestamp ISO format
+
+// String Utilities:
+
+// ลบ HTML tags และ XSS
+func SanitizeString(s string) string {
+	s = strings.TrimSpace(s)
+	// Replace multiple spaces with a single space
+	fields := strings.Fields(s)
+	return strings.Join(fields, " ")
+}
+
+// Mark Token
+func MarkToken(token string) string {
+	if len(token) <= 8 {
+		return "*****"
+	}
+	return token[:4] + "****" + token[len(token)-4:]
+}
+
+// Pagination Utilities:
+func NormalizePagination(limit, offset int) (int, int) {
+	if limit < 1 {
+		limit = defaultLimit
+
+	}
+	if limit > maxLimit {
+		limit = maxLimit
+	}
+	if offset < 0 {
+		offset = 0
+	}
+	return limit, offset
+} // ปรับ pagination parameters

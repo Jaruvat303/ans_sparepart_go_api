@@ -1,0 +1,779 @@
+basePath: /api/v1
+definitions:
+  ans-spareparts-api_internal_features_category.CategoryResponse:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  ans-spareparts-api_internal_features_inventory.InventoryResponse:
+    properties:
+      id:
+        type: integer
+      productID:
+        type: integer
+      quantity:
+        type: integer
+    type: object
+  ans-spareparts-api_pkg_response.ErrorBody:
+    properties:
+      code:
+        type: string
+      message:
+        type: string
+    type: object
+  internal_features_auth.LoginRequest:
+    properties:
+      password:
+        maxLength: 100
+        minLength: 8
+        type: string
+      username:
+        maxLength: 50
+        minLength: 5
+        type: string
+    required:
+    - password
+    - username
+    type: object
+  internal_features_auth.LoginResponse:
+    properties:
+      token:
+        example: eyJhbGci01...
+        type: string
+    type: object
+  internal_features_auth.RegisterRequest:
+    properties:
+      email:
+        maxLength: 100
+        type: string
+      password:
+        maxLength: 100
+        minLength: 8
+        type: string
+      username:
+        maxLength: 50
+        minLength: 5
+        type: string
+    required:
+    - email
+    - password
+    - username
+    type: object
+  internal_features_category.CategoryListResponse:
+    properties:
+      categories:
+        items:
+          $ref: '#/definitions/internal_features_category.CategoryResponse'
+        type: array
+      total:
+        format: int64
+        type: integer
+    type: object
+  internal_features_category.CategoryResponse:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  internal_features_category.Item:
+    properties:
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+  internal_features_inventory.InventoryListResponse:
+    properties:
+      inventories:
+        items:
+          $ref: '#/definitions/internal_features_inventory.InventoryResponse'
+        type: array
+      total:
+        format: int64
+        type: integer
+    type: object
+  internal_features_inventory.InventoryResponse:
+    properties:
+      id:
+        type: integer
+      productID:
+        type: integer
+      quantity:
+        type: integer
+    type: object
+  internal_features_inventory.UpdateQuantityRequest:
+    properties:
+      productID:
+        type: integer
+      quantity:
+        type: integer
+    type: object
+  internal_features_product.CreateProductRequest:
+    properties:
+      category_id:
+        type: integer
+      description:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+      sku:
+        type: string
+    type: object
+  internal_features_product.LiteProductResponse:
+    properties:
+      categoryID:
+        type: integer
+      id:
+        type: integer
+      name:
+        type: string
+      price:
+        format: float64
+        type: number
+      sku:
+        type: string
+    type: object
+  internal_features_product.ProductDetailResponse:
+    properties:
+      category:
+        $ref: '#/definitions/ans-spareparts-api_internal_features_category.CategoryResponse'
+      categoryID:
+        type: integer
+      description:
+        type: string
+      id:
+        type: integer
+      inventory:
+        $ref: '#/definitions/ans-spareparts-api_internal_features_inventory.InventoryResponse'
+      name:
+        type: string
+      price:
+        format: float64
+        type: number
+      sku:
+        type: string
+    type: object
+  internal_features_product.ProductListResponse:
+    properties:
+      products:
+        items:
+          $ref: '#/definitions/internal_features_product.LiteProductResponse'
+        type: array
+      total:
+        format: int64
+        type: integer
+    type: object
+  internal_features_product.UpdateProductRequest:
+    properties:
+      categoryID:
+        type: integer
+      description:
+        type: string
+      name:
+        type: string
+      price:
+        format: float64
+        type: number
+      sku:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: suppourt@swagger.io
+    name: API Support
+    url: http://www.swagger.io/support
+  description: A Point of sale system API built with Clean Architechture
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0html
+  termsOfService: http://swagger.io/terms/
+  title: ANS Sparepart API
+  version: "1.0"
+paths:
+  /auth/login:
+    post:
+      consumes:
+      - application/json
+      description: Authentication user and return JWT token
+      parameters:
+      - description: Login credentails
+        in: body
+        name: credentials
+        required: true
+        schema:
+          $ref: '#/definitions/internal_features_auth.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_features_auth.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ans-spareparts-api_pkg_response.ErrorBody'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/ans-spareparts-api_pkg_response.ErrorBody'
+      summary: User login
+      tags:
+      - auth
+  /auth/logout:
+    post:
+      consumes:
+      - application/json
+      description: Logout user and blacklist token
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/ans-spareparts-api_pkg_response.ErrorBody'
+      security:
+      - BearerAuth: []
+      summary: User logout
+      tags:
+      - auth
+  /auth/register:
+    post:
+      consumes:
+      - application/json
+      description: Register a new user account
+      parameters:
+      - description: User registration data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/internal_features_auth.RegisterRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: 'Example: {"message": "register successfull"}'
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: 'BAD_REQUEST: Invalid JSON or Input'
+          schema:
+            $ref: '#/definitions/ans-spareparts-api_pkg_response.ErrorBody'
+        "409":
+          description: 'CONFLICT: Username or Email already exists'
+          schema:
+            $ref: '#/definitions/ans-spareparts-api_pkg_response.ErrorBody'
+        "500":
+          description: 'INTERNAL_ERROR: Server error'
+          schema:
+            $ref: '#/definitions/ans-spareparts-api_pkg_response.ErrorBody'
+      summary: Register a new user
+      tags:
+      - auth
+  /categories:
+    get:
+      consumes:
+      - application/json
+      description: Get all product categories
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/internal_features_category.CategoryListResponse'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ans-spareparts-api_pkg_response.ErrorBody'
+      security:
+      - BearerAuth: []
+      summary: Get all categories
+    post:
+      consumes:
+      - application/json
+      description: Create a new product category (admin/manager only)
+      parameters:
+      - description: Category creaion request
+        in: body
+        name: category
+        required: true
+        schema:
+          $ref: '#/definitions/internal_features_category.Item'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/internal_features_category.CategoryResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ans-spareparts-api_pkg_response.ErrorBody'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ans-spareparts-api_pkg_response.ErrorBody'
+      security:
+      - BearerAuth: []
+      summary: Create a new category
+      tags:
+      - categories
+  /categories/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a category (admin only)
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ans-spareparts-api_pkg_response.ErrorBody'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ans-spareparts-api_pkg_response.ErrorBody'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/ans-spareparts-api_pkg_response.ErrorBody'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/ans-spareparts-api_pkg_response.ErrorBody'
+      security:
+      - BearerAuth: []
+      summary: Delete category
+      tags:
+      - categories
+    get:
+      consumes:
+      - application/json
+      description: Get category details by category ID
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_features_category.CategoryResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ans-spareparts-api_pkg_response.ErrorBody'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/ans-spareparts-api_pkg_response.ErrorBody'
+      security:
+      - BearerAuth: []
+      summary: Get Category by ID
+      tags:
+      - categories
+  /category/{id}:
+    put:
+      consumes:
+      - application/json
+      description: Update category details (admin/manager only)
+      parameters:
+      - description: Category ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Category update data
+        in: body
+        name: category
+        required: true
+        schema:
+          additionalProperties: true
+          type: object
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_features_category.CategoryResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ans-spareparts-api_pkg_response.ErrorBody'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ans-spareparts-api_pkg_response.ErrorBody'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/ans-spareparts-api_pkg_response.ErrorBody'
+      security:
+      - BearerAuth: []
+      summary: Update category
+      tags:
+      - categories
+  /inventory:
+    get:
+      consumes:
+      - application/json
+      description: Get all inventory records (admin/manager only)
+      parameters:
+      - default: 10
+        description: Limit
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Offset
+        in: query
+        name: offset
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/internal_features_inventory.InventoryListResponse'
+            type: array
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ans-spareparts-api_pkg_response.ErrorBody'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ans-spareparts-api_pkg_response.ErrorBody'
+      security:
+      - BearerAuth: []
+      summary: Get inventories from query
+      tags:
+      - inventory
+    patch:
+      consumes:
+      - application/json
+      description: Update inventory stock (admin/manager only)
+      parameters:
+      - description: Inventory update request
+        in: body
+        name: inventory
+        required: true
+        schema:
+          $ref: '#/definitions/internal_features_inventory.UpdateQuantityRequest'
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_features_inventory.InventoryResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ans-spareparts-api_pkg_response.ErrorBody'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ans-spareparts-api_pkg_response.ErrorBody'
+      security:
+      - BearerAuth: []
+      summary: Update quantity inventory
+      tags:
+      - inventory
+  /inventory/{inventoryid}:
+    get:
+      consumes:
+      - application/json
+      description: Get inventory detail by inventory id
+      parameters:
+      - description: inventory ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_features_inventory.InventoryListResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ans-spareparts-api_pkg_response.ErrorBody'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/ans-spareparts-api_pkg_response.ErrorBody'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ans-spareparts-api_pkg_response.ErrorBody'
+      security:
+      - BearerAuth: []
+      summary: Get inventory by ID
+  /product/{productID}/inventory:
+    get:
+      consumes:
+      - application/json
+      description: Get inventory details by product ID
+      parameters:
+      - description: Product ID
+        in: path
+        name: productId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_features_inventory.InventoryResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ans-spareparts-api_pkg_response.ErrorBody'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/ans-spareparts-api_pkg_response.ErrorBody'
+      security:
+      - BearerAuth: []
+      summary: Get inventory by product ID
+      tags:
+      - inventory
+  /products:
+    get:
+      consumes:
+      - application/json
+      description: Getall products with pagination
+      parameters:
+      - default: 10
+        description: Limit
+        in: query
+        name: limit
+        type: integer
+      - default: 0
+        description: Offset
+        in: query
+        name: offset
+        type: integer
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/internal_features_product.ProductListResponse'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ans-spareparts-api_pkg_response.ErrorBody'
+      security:
+      - BearerAuth: []
+      summary: Get all products
+      tags:
+      - products
+    post:
+      consumes:
+      - application/json
+      parameters:
+      - description: Product creation request
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/internal_features_product.CreateProductRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/internal_features_product.ProductDetailResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ans-spareparts-api_pkg_response.ErrorBody'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ans-spareparts-api_pkg_response.ErrorBody'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/ans-spareparts-api_pkg_response.ErrorBody'
+      security:
+      - BearerAuth: []
+      summary: Create a new product
+  /products/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a product (admin only)
+      parameters:
+      - description: ProductID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ans-spareparts-api_pkg_response.ErrorBody'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ans-spareparts-api_pkg_response.ErrorBody'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/ans-spareparts-api_pkg_response.ErrorBody'
+      security:
+      - BearerAuth: []
+      summary: Delete product
+      tags:
+      - products
+    get:
+      consumes:
+      - application/json
+      description: Get product details by product ID
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_features_product.ProductDetailResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ans-spareparts-api_pkg_response.ErrorBody'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/ans-spareparts-api_pkg_response.ErrorBody'
+      security:
+      - BearerAuth: []
+      summary: Get product by ID
+    put:
+      consumes:
+      - application/json
+      description: Update product details (admin/manager only)
+      parameters:
+      - description: Product ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Product update data
+        in: body
+        name: product
+        required: true
+        schema:
+          $ref: '#/definitions/internal_features_product.UpdateProductRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/internal_features_product.ProductDetailResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ans-spareparts-api_pkg_response.ErrorBody'
+        "403":
+          description: Forbidden
+          schema:
+            $ref: '#/definitions/ans-spareparts-api_pkg_response.ErrorBody'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/ans-spareparts-api_pkg_response.ErrorBody'
+        "409":
+          description: Conflict
+          schema:
+            $ref: '#/definitions/ans-spareparts-api_pkg_response.ErrorBody'
+      security:
+      - BearerAuth: []
+      summary: Update product
+      tags:
+      - products
+  /users/profile:
+    delete:
+      consumes:
+      - application/json
+      description: Delete current authenticated user's profile
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/ans-spareparts-api_pkg_response.ErrorBody'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/ans-spareparts-api_pkg_response.ErrorBody'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/ans-spareparts-api_pkg_response.ErrorBody'
+      security:
+      - BearerAuth: []
+      summary: Delete user account
+      tags:
+      - User Profile
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization Type "Bearer" followed by a space and JWT token.
+    type: apiKey
+swagger: "2.0"

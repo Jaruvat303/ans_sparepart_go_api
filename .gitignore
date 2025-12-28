@@ -1,0 +1,17 @@
+.env
+.DS_Store
+**/.DS_Store
+
+# Go build/test artifacts
+cover.out
+*.out
+*.test
+*.exe
+*.dll
+*.so
+*.dylib
+*.a
+*.o
+
+# Local build output (if present)
+ans-spareparts-api
