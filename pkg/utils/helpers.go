@@ -11,26 +11,6 @@ const (
 	maxLimit     = 100
 )
 
-// func IsValidRole(role string) bool {
-// 	userRole := map[string]bool{
-// 		"user":        true,
-// 		"moderator":   true,
-// 		"admin":       true,
-// 		"super_admin": true,
-// 	}
-
-// 	return userRole[role]
-// }                         // ตรวจสอบ role
-
-// Random Generation:
-
-// สร้าง random numeric ID
-// func GenerateRandomID() string {
-// 	max := big.NewInt(99999999999)
-// 	n, _ := rand.Int(rand.Reader, max)
-// 	return fmt.Sprintf("%d", n)
-// }
-
 // Time Utilities:
 func GetCurrentTimestamp() string {
 	return time.Now().UTC().Format(time.RFC3339)
